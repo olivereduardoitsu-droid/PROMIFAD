@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Merriweather:wght@300;400&display=swap');
+
+:root {
+  --bg-dark: #121212;
+  --bg-panel: #1e1e1e;
+  --gold-accent: #D4AF37;
+  --gold-muted: #AA8C2C;
+  --text-light: #E0E0E0;
+  --text-muted: #A0A0A0;
+  --border-gold: 1px solid #D4AF37;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  font-family: 'Merriweather', serif;
+}
+
+h1, h2, h3 {
+  font-family: 'Playfair Display', serif;
+  color: var(--gold-accent);
+  text-align: center;
+  font-weight: 700;
+}
+
+button {
+  background-color: transparent;
+  color: var(--gold-accent);
+  border: var(--border-gold);
+  padding: 10px 20px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--gold-accent);
+  color: var(--bg-dark);
+}
+
+button:disabled {
+  border-color: var(--text-muted);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}

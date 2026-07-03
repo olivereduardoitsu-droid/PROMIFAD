@@ -1,0 +1,5 @@
+/* src/components/FaseRecuperacion/FaseRecuperacion.css */
+/* Reutiliza el marco decorativo importando la lógica visual de FaseEmergencia o definiendo especificidades */
+.fase-panel em {
+  color: var(--gold-muted);
+}
