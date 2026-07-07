@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import NavBar from './components/NavBar/NavBar';
+import Login from './components/Login/Login';
 import FaseEmergencia from './components/FaseEmergencia/FaseEmergencia';
 import FaseRecuperacion from './components/FaseRecuperacion/FaseRecuperacion';
 import Dashboard from './components/Dashboard/Dashboard';
@@ -8,12 +9,17 @@ import DonantesPage from './pages/DonantesPage/DonantesPage';
 import EquiposRescatePage from './pages/EquiposRescatePage/EquiposRescatePage';
 import RescatadosPage from './pages/RescatadosPage/RescatadosPage';
 import DesaparecidosPage from './pages/DesaparecidosPage/DesaparecidosPage';
+import ContactoEmergencia from './components/ContactoEmergencia/ContactoEmergencia';
+import ZonasAfectadas from './components/ZonasAfectadas/ZonasAfectadas';
 import './App.css';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
   const [tabActiva, setTabActiva] = useState('inicio');
+  const [theme, setTheme] = useState('default');
 
   // Estados dinámicos vinculados con PostgreSQL
   const [personas, setPersonas] = useState([]);
@@ -69,6 +75,10 @@ function App() {
     cargarDatos();
   }, []);
 
+  useEffect(() => {
+    document.body.setAttribute('data-theme', theme);
+  }, [theme]);
+
   const addLog = async (message) => {
     try {
       const res = await fetch(`${API_BASE_URL}/logs`, {
@@ -82,6 +92,17 @@ function App() {
     } catch (error) {
       console.error("Error persistiendo log:", error);
     }
+  };
+
+  const handleLogin = (data) => {
+    setUser(data);
+    setLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setLoggedIn(false);
+    setUser(null);
+    setTabActiva('inicio');
   };
 
   const renderTab = () => {
@@ -124,21 +145,31 @@ function App() {
             onRefresh={cargarDatos}
           />
         );
+      case 'zonas-afectadas':
+        return <ZonasAfectadas />;
+      case 'contacto-emergencia':
+        return <ContactoEmergencia />;
       default:
         return null;
     }
   };
 
   return (
-    <div className="app-container">
-      <NavBar tabActiva={tabActiva} setTabActiva={setTabActiva} />
-      <div className="app-content">
-        <header className="app-header">
-          <h1>Sistema de Resiliencia y Financiación Humanitaria</h1>
-          <div className="header-line" />
-        </header>
-        {renderTab()}
-      </div>
+    <div className="app-container" data-theme={theme}>
+      {loggedIn ? (
+        <>
+          <NavBar tabActiva={tabActiva} setTabActiva={setTabActiva} onLogout={handleLogout} />
+          <div className="app-content">
+            <header className="app-header">
+              <h1>Sistema de Resiliencia y Financiación Humanitaria</h1>
+              <div className="header-line" />
+            </header>
+            {renderTab()}
+          </div>
+        </>
+      ) : (
+        <Login onLogin={handleLogin} />
+      )}
     </div>
   );
 }

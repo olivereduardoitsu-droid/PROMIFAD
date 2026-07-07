@@ -1,5 +1,12 @@
 import { useState } from 'react';
+import FileUploadImport from '../../components/FileUploadImport/FileUploadImport';
 import './RescatadosPage.css';
+
+const columns = [
+  { key: 'nombre', label: 'Nombre', required: true },
+  { key: 'equipo', label: 'Equipo', required: false },
+  { key: 'estado', label: 'Estado Salud', required: false },
+];
 
 export default function RescatadosPage({ personasRescatadas, equiposRescate, onRefresh }) {
   const [nombre, setNombre] = useState('');
@@ -41,6 +48,24 @@ export default function RescatadosPage({ personasRescatadas, equiposRescate, onR
     }
   };
 
+  const importarRescatados = async (registros) => {
+    for (const r of registros) {
+      if (!r.nombre) continue;
+      const estadoSalud = ['Estable', 'Crítico', 'Leve', 'Recuperado'].includes(r.estado)
+        ? r.estado : 'Estable';
+      await fetch('http://localhost:5000/api/rescatados', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: r.nombre,
+          equipoAsociado: r.equipo || 'No asignado',
+          estadoSalud
+        })
+      });
+    }
+    onRefresh();
+  };
+
   const filtrados = personasRescatadas.filter(r =>
     r.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
@@ -80,6 +105,7 @@ export default function RescatadosPage({ personasRescatadas, equiposRescate, onR
             </div>
             <button type="submit" disabled={!nombre}>Registrar Rescate</button>
           </form>
+          <FileUploadImport columns={columns} onImport={importarRescatados} label="rescatados" />
         </div>
 
         <div className="page-card">

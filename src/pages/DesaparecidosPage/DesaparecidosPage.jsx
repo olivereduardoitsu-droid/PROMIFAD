@@ -1,5 +1,11 @@
 import { useState } from 'react';
+import FileUploadImport from '../../components/FileUploadImport/FileUploadImport';
 import './DesaparecidosPage.css';
+
+const columns = [
+  { key: 'nombre', label: 'Nombre', required: true },
+  { key: 'zona', label: 'Zona', required: false },
+];
 
 export default function DesaparecidosPage({
   personasDesaparecidas,
@@ -47,6 +53,18 @@ export default function DesaparecidosPage({
     }
   };
 
+  const importarDesaparecidos = async (registros) => {
+    for (const r of registros) {
+      if (!r.nombre) continue;
+      await fetch('http://localhost:5000/api/desaparecidos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: r.nombre, zona: r.zona || 'Desconocida' })
+      });
+    }
+    onRefresh();
+  };
+
   const filtrados = personasDesaparecidas.filter(d =>
     d.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
@@ -72,6 +90,7 @@ export default function DesaparecidosPage({
             </div>
             <button type="submit" disabled={!nombre}>Reportar Desaparición</button>
           </form>
+          <FileUploadImport columns={columns} onImport={importarDesaparecidos} label="desaparecidos" />
         </div>
 
         <div className="page-card">
