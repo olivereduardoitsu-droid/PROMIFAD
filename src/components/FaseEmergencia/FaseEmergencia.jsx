@@ -1,36 +1,39 @@
 import './FaseEmergencia.css';
 
-export default function FaseEmergencia({ personas, setPersonas, addLog }) {
+export default function FaseEmergencia({ addLog, onRefresh }) {
   const costoEnvio = 120.0;
 
-  const ejecutarFaseEmergencia = () => {
-    addLog(">>> [INICIANDO FASE 1: DESPLIEGUE DE EMERGENCIA]");
-    let recaudado = 0;
+  const ejecutarFaseEmergencia = async () => {
+    await addLog(">>> [INICIANDO FASE 1: DESPLIEGUE DE EMERGENCIA]");
     
-    const nuevasPersonas = personas.map(donante => {
-      // Simulación del rol DonanteActivo retirando $40
-      if (recaudado < costoEnvio && donante.saldo >= 40.0) {
-        recaudado += 40.0;
-        addLog(`El donante ${donante.nombre} aporta $40 para los Kits de Auxilio.`);
-        return { ...donante, saldo: donante.saldo - 40.0 };
+    try {
+      const res = await fetch('http://localhost:5000/api/fases/emergencia', { 
+        method: 'POST' 
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        // Procesamos los logs que devuelve el backend
+        for (const msg of data.operaciones) {
+          await addLog(msg);
+        }
+        onRefresh();
+      } else {
+        await addLog("Error: No se pudo completar el despliegue.");
       }
-      return donante;
-    });
-
-    setPersonas(nuevasPersonas);
-
-    if (recaudado >= costoEnvio) {
-      addLog(`¡Meta alcanzada! Fondos suficientes ($${recaudado}) para enviar la Ruta de Despliegue.`);
-    } else {
-      addLog(`Fondos insuficientes. Solo se recaudaron $${recaudado}.`);
+    } catch (error) {
+      console.error("Error al procesar fase de emergencia:", error);
+      await addLog("Error de conexión con el servidor.");
     }
   };
 
   return (
     <section className="fase-panel">
       <h2>I. Despliegue de Emergencia</h2>
-      <p>Costo logístico requerido: <strong>${costoEnvio}</strong></p>
-      <button onClick={ejecutarFaseEmergencia}>Ejecutar Despliegue</button>
+      <p>Costo logístico requerido: <strong>${costoEnvio.toFixed(2)}</strong></p>
+      <button onClick={ejecutarFaseEmergencia}>
+        Ejecutar Despliegue
+      </button>
     </section>
   );
 }

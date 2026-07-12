@@ -1,43 +1,39 @@
 import { useState } from 'react';
 import './FaseRecuperacion.css';
 
-export default function FaseRecuperacion({ personas, setPersonas, proyecto, setProyecto, addLog }) {
+export default function FaseRecuperacion({ personas, proyecto, addLog, onRefresh }) {
   const inversores = personas.filter(p => p.id !== "PER-01");
-  const aporteSugerido = proyecto.montoRequerido / inversores.length;
+  const montoReq = proyecto.monto_requerido || proyecto.montoRequerido || 0;
+  const aporteSugerido = montoReq / (inversores.length || 1);
+  
   const [aportePorInversor, setAportePorInversor] = useState(aporteSugerido);
 
   const totalRecolectable = aportePorInversor * inversores.length;
+  const estadoProy = proyecto.estado;
 
-  const ejecutarFinanciacion = () => {
-    if (proyecto.estado === "FINANCIADO") return;
+  const ejecutarFinanciacion = async () => {
+    if (estadoProy === "FINANCIADO") return;
 
-    addLog(">>> [INICIANDO FASE 2: REACTIVACIÓN ECONÓMICA]");
-    addLog(`Proyecto: ${proyecto.descripcion} necesita $${proyecto.montoRequerido}`);
-    addLog(`Aporte por inversor: $${aportePorInversor.toFixed(2)}`);
+    await addLog(">>> [INICIANDO FASE 2: REACTIVACIÓN ECONÓMICA]");
+    await addLog(`Proyecto: ${proyecto.descripcion} necesita $${parseFloat(montoReq).toFixed(2)}`);
 
-    let montoRecolectado = 0;
+    try {
+      const res = await fetch('http://localhost:5000/api/fases/recuperacion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ aportePorInversor, proyectoId: proyecto.id })
+      });
 
-    const nuevasPersonas = personas.map(persona => {
-      if (persona.id !== "PER-01" && persona.saldo >= aportePorInversor) {
-        montoRecolectado += aportePorInversor;
-        addLog(`Inversor ${persona.nombre} aporta: $${aportePorInversor.toFixed(2)}`);
-        return { ...persona, saldo: persona.saldo - aportePorInversor };
+      if (res.ok) {
+        const data = await res.json();
+        for (const msg of data.logs) {
+          await addLog(msg);
+        }
+        onRefresh();
       }
-      return persona;
-    });
-
-    if (montoRecolectado >= proyecto.montoRequerido) {
-      const personasFinales = nuevasPersonas.map(p =>
-        p.id === "PER-01" ? { ...p, saldo: p.saldo + montoRecolectado } : p
-      );
-
-      setPersonas(personasFinales);
-      setProyecto({ ...proyecto, montoActual: montoRecolectado, estado: "FINANCIADO" });
-      addLog(`🔔 [Notificación] ¡Felicidades Juan! Tu barbería ha sido financiada.`);
-      addLog("¡Éxito! El emprendimiento está plenamente FINANCIADO.");
-    } else {
-      setPersonas(nuevasPersonas);
-      addLog(`Fondos insuficientes. Se recolectaron $${montoRecolectado.toFixed(2)} de $${proyecto.montoRequerido}.`);
+    } catch (error) {
+      console.error("Error al ejecutar microcrédito:", error);
+      await addLog("Error al conectar con el servidor.");
     }
   };
 
@@ -45,10 +41,10 @@ export default function FaseRecuperacion({ personas, setPersonas, proyecto, setP
     <section className="fase-panel">
       <h2>II. Reactivación Económica</h2>
       <p>Proyecto: <em>{proyecto.descripcion}</em></p>
-      <p>Monto requerido: <strong>${proyecto.montoRequerido.toFixed(2)}</strong></p>
-      <p>Estado: <strong>{proyecto.estado}</strong></p>
+      <p>Monto requerido: <strong>${parseFloat(montoReq).toFixed(2)}</strong></p>
+      <p>Estado: <strong>{estadoProy}</strong></p>
 
-      {proyecto.estado !== "FINANCIADO" && (
+      {estadoProy !== "FINANCIADO" && (
         <div className="microcredito-control">
           <div className="form-grupo">
             <label>Aporte por inversor ($)</label>
@@ -62,10 +58,10 @@ export default function FaseRecuperacion({ personas, setPersonas, proyecto, setP
           </div>
           <div className="microcredito-info">
             <span>{inversores.length} inversores × ${aportePorInversor.toFixed(2)} = </span>
-            <strong className={totalRecolectable >= proyecto.montoRequerido ? 'suficiente' : 'insuficiente'}>
+            <strong className={totalRecolectable >= montoReq ? 'suficiente' : 'insuficiente'}>
               ${totalRecolectable.toFixed(2)}
             </strong>
-            <span> de ${proyecto.montoRequerido.toFixed(2)} requeridos</span>
+            <span> de ${parseFloat(montoReq).toFixed(2)} requeridos</span>
           </div>
           <button
             onClick={ejecutarFinanciacion}

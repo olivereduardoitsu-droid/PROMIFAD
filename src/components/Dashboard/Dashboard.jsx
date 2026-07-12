@@ -8,7 +8,11 @@ export default function Dashboard({ personas, proyecto, log }) {
         {personas.map(p => (
           <li key={p.id}>
             <span className="nombre">{p.nombre}</span>
+
             <span className="saldo">${p.saldo.toFixed(2)}</span>
+
+            <span className="saldo">${Number(p.saldo || 0).toFixed(2)}</span>
+ agregacion-donantes-admins
           </li>
         ))}
       </ul>

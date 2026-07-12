@@ -1,50 +1,54 @@
 import { useState } from 'react';
 import './Indemnizacion.css';
 
-export default function Indemnizacion({ personas, indemnizaciones, setIndemnizaciones, addLog }) {
+export default function Indemnizacion({ personas, indemnizaciones, addLog, onRefresh }) {
   const [personaSel, setPersonaSel] = useState('');
   const [monto, setMonto] = useState('');
   const [motivo, setMotivo] = useState('');
 
-  const registrarIndemnizacion = (e) => {
+  const registrarIndemnizacion = async (e) => {
     e.preventDefault();
     if (!personaSel || !monto || !motivo) return;
     const montoNum = parseFloat(monto);
     if (isNaN(montoNum) || montoNum <= 0) return;
 
-    const nuevaInd = {
-      id: `IND-${String(indemnizaciones.length + 1).padStart(2, '0')}`,
-      persona: personaSel,
-      monto: montoNum,
-      motivo,
-      fecha: new Date().toLocaleDateString('es-ES'),
-      estado: 'Pendiente'
-    };
-
-    setIndemnizaciones(prev => [...prev, nuevaInd]);
-    addLog(`💰 Indemnización registrada: ${personaSel} — $${montoNum.toFixed(2)} por "${motivo}"`);
-    setPersonaSel('');
-    setMonto('');
-    setMotivo('');
+    try {
+      const res = await fetch('http://localhost:5000/api/indemnizaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ personaNombre: personaSel, monto: montoNum, motivo })
+      });
+      if (res.ok) {
+        await addLog(`💰 Indemnización registrada: ${personaSel} — $${montoNum.toFixed(2)} por "${motivo}"`);
+        setPersonaSel('');
+        setMonto('');
+        setMotivo('');
+        onRefresh(); // Refresca la lista desde el componente padre
+      }
+    } catch (error) {
+      console.error("Error registrando indemnización:", error);
+    }
   };
 
-  const aprobarIndemnizacion = (id) => {
-    setIndemnizaciones(prev =>
-      prev.map(ind =>
-        ind.id === id ? { ...ind, estado: 'Aprobado' } : ind
-      )
-    );
-    const ind = indemnizaciones.find(i => i.id === id);
-    if (ind) addLog(`✅ Indemnización ${id} aprobada para ${ind.persona}`);
+  const aprobarIndemnizacion = async (id, nombrePersona) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/indemnizaciones/${id}/aprobar`, { method: 'PUT' });
+      if (res.ok) {
+        await addLog(`✅ Indemnización ${id} aprobada para ${nombrePersona}`);
+        onRefresh(); // Refresca la lista desde el componente padre
+      }
+    } catch (error) {
+      console.error("Error al aprobar indemnización:", error);
+    }
   };
 
   const totalPendiente = indemnizaciones
     .filter(i => i.estado === 'Pendiente')
-    .reduce((sum, i) => sum + i.monto, 0);
+    .reduce((sum, i) => sum + parseFloat(i.monto), 0);
 
   const totalAprobado = indemnizaciones
     .filter(i => i.estado === 'Aprobado')
-    .reduce((sum, i) => sum + i.monto, 0);
+    .reduce((sum, i) => sum + parseFloat(i.monto), 0);
 
   return (
     <div className="page">
@@ -112,14 +116,14 @@ export default function Indemnizacion({ personas, indemnizaciones, setIndemnizac
               {indemnizaciones.map(ind => (
                 <div key={ind.id} className="indemn-item">
                   <div className="indemn-item-top">
-                    <span className="indemn-persona">{ind.persona}</span>
+                    <span className="indemn-persona">{ind.persona_nombre || ind.persona}</span>
                     <span className={`estado-badge ${ind.estado.toLowerCase()}`}>{ind.estado}</span>
                   </div>
                   <div className="indemn-item-info">
-                    {ind.motivo} · <strong style={{ color: 'var(--orange-accent)' }}>${ind.monto.toFixed(2)}</strong> · {ind.fecha}
+                    {ind.motivo} · <strong style={{ color: 'var(--orange-accent)' }}>${parseFloat(ind.monto).toFixed(2)}</strong> · {new Date(ind.fecha).toLocaleDateString('es-ES')}
                   </div>
                   {ind.estado === 'Pendiente' && (
-                    <button className="indemn-aprobar" onClick={() => aprobarIndemnizacion(ind.id)}>
+                    <button className="indemn-aprobar" onClick={() => aprobarIndemnizacion(ind.id, ind.persona_nombre || ind.persona)}>
                       Aprobar
                     </button>
                   )}
