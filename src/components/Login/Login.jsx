@@ -2,11 +2,14 @@ import { useState } from 'react';
 import './Login.css';
 
 export default function Login({ onLogin }) {
+  const [role, setRole] = useState('admin');
+  const [codigo, setCodigo] = useState('');
   const [form, setForm] = useState({
     cedula: '',
     telefono: '',
     nombre: '',
     correo: '',
+    nacionalidad: '',
     password: '',
   });
 
@@ -14,9 +17,16 @@ export default function Login({ onLogin }) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleCodigoSubmit = (e) => {
+    e.preventDefault();
+    if (codigo.toUpperCase() === 'MCDTM') {
+      onLogin({ ...form, role: 'mcdtm', codigo });
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin(form);
+    onLogin({ ...form, role });
   };
 
   return (
@@ -25,7 +35,28 @@ export default function Login({ onLogin }) {
         <div className="login-brand">PROMIFAD</div>
         <h2 className="login-title">Sistema de Resiliencia y Financiación Humanitaria</h2>
         <div className="login-divider" />
-        <p className="login-subtitle">Ingrese sus datos para acceder al sistema</p>
+
+        <div className="login-roles">
+          <button
+            className={`role-btn ${role === 'admin' ? 'activo' : ''}`}
+            onClick={() => setRole('admin')}
+          >
+            ⚙️ Administrador
+          </button>
+          <button
+            className={`role-btn ${role === 'donante' ? 'activo' : ''}`}
+            onClick={() => setRole('donante')}
+          >
+            🤝 Donante
+          </button>
+        </div>
+
+        <p className="login-subtitle">
+          {role === 'admin'
+            ? 'Acceso completo al sistema de gestión humanitaria'
+            : 'Portal exclusivo para realizar donaciones'}
+        </p>
+
         <form className="login-form" onSubmit={handleSubmit}>
           <label className="login-field">
             <span>Cédula</span>
@@ -44,11 +75,37 @@ export default function Login({ onLogin }) {
             <input name="correo" type="email" value={form.correo} onChange={handleChange} placeholder="correo@ejemplo.com" required />
           </label>
           <label className="login-field">
+            <span>Nacionalidad</span>
+            <input name="nacionalidad" type="text" value={form.nacionalidad} onChange={handleChange} placeholder="Venezolana, Colombiana, etc." required />
+          </label>
+          <label className="login-field">
             <span>Contraseña</span>
             <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="••••••••" required />
           </label>
-          <button type="submit" className="login-submit">Ingresar al sistema</button>
+          <button type="submit" className="login-submit">
+            {role === 'admin' ? 'Ingresar al sistema' : 'Entrar como Donante'}
+          </button>
         </form>
+
+        <div className="login-divider" />
+        <details className="login-codigo-section">
+          <summary>🔐 Acceso con código especial</summary>
+          <form onSubmit={handleCodigoSubmit} className="codigo-form">
+            <label className="login-field">
+              <span>Código de acceso</span>
+              <input
+                type="text"
+                value={codigo}
+                onChange={e => setCodigo(e.target.value)}
+                placeholder="Ingrese el código"
+                autoComplete="off"
+              />
+            </label>
+            <button type="submit" className="login-submit" disabled={!codigo}>
+              Entrar con código
+            </button>
+          </form>
+        </details>
       </div>
     </div>
   );

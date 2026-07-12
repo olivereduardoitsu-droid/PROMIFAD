@@ -5,6 +5,9 @@ export default function EquiposRescatePage({ equiposRescate, onRefresh }) {
   const [nombre, setNombre] = useState('');
   const [miembros, setMiembros] = useState('');
   const [ubicacion, setUbicacion] = useState('');
+  const [nacionalidad, setNacionalidad] = useState('');
+  const [tiempoLlegada, setTiempoLlegada] = useState('');
+  const [contacto, setContacto] = useState('');
 
   const agregarEquipo = async (e) => {
     e.preventDefault();
@@ -14,12 +17,22 @@ export default function EquiposRescatePage({ equiposRescate, onRefresh }) {
       const res = await fetch('http://localhost:5000/api/equipos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, miembros: parseInt(miembros), ubicacion })
+        body: JSON.stringify({
+          nombre,
+          miembros: parseInt(miembros),
+          ubicacion,
+          nacionalidad,
+          tiempoLlegada,
+          contacto
+        })
       });
       if (res.ok) {
         setNombre('');
         setMiembros('');
         setUbicacion('');
+        setNacionalidad('');
+        setTiempoLlegada('');
+        setContacto('');
         onRefresh();
       }
     } catch (error) {
@@ -51,6 +64,19 @@ export default function EquiposRescatePage({ equiposRescate, onRefresh }) {
     }
   };
 
+  const retirarEquipo = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/equipos/${id}/estado`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: 'Retirado' })
+      });
+      if (res.ok) onRefresh();
+    } catch (error) {
+      console.error("Error retirando brigada:", error);
+    }
+  };
+
   return (
     <div className="page">
       <div className="page-header">
@@ -66,9 +92,21 @@ export default function EquiposRescatePage({ equiposRescate, onRefresh }) {
               <label>Nombre del equipo</label>
               <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Ej: Brigada Alfa" />
             </div>
+            <div className="form-grupo full">
+              <label>Nacionalidad</label>
+              <input value={nacionalidad} onChange={e => setNacionalidad(e.target.value)} placeholder="Venezolana, Colombiana, etc." />
+            </div>
             <div className="form-grupo">
               <label>Miembros</label>
               <input type="number" min="1" value={miembros} onChange={e => setMiembros(e.target.value)} placeholder="5" />
+            </div>
+            <div className="form-grupo">
+              <label>Tiempo de llegada</label>
+              <input value={tiempoLlegada} onChange={e => setTiempoLlegada(e.target.value)} placeholder="Ej: 15 min, 1 hora" />
+            </div>
+            <div className="form-grupo full">
+              <label>Contacto</label>
+              <input value={contacto} onChange={e => setContacto(e.target.value)} placeholder="Teléfono o responsable" />
             </div>
             <div className="form-grupo">
               <label>Ubicación</label>
@@ -89,7 +127,10 @@ export default function EquiposRescatePage({ equiposRescate, onRefresh }) {
                   <tr>
                     <th>ID</th>
                     <th>Nombre</th>
+                    <th>Nacionalidad</th>
                     <th>Miembros</th>
+                    <th>Llegada</th>
+                    <th>Contacto</th>
                     <th>Ubicación</th>
                     <th>Estado</th>
                     <th></th>
@@ -99,17 +140,23 @@ export default function EquiposRescatePage({ equiposRescate, onRefresh }) {
                   {equiposRescate.map(eq => (
                     <tr key={eq.id}>
                       <td style={{ color: 'var(--text-muted)', fontFamily: 'monospace' }}>{eq.id}</td>
-                      <td>{eq.nombre}</td>
+                      <td style={{ fontWeight: 600 }}>{eq.nombre}</td>
+                      <td><span className="nacionalidad-badge">{eq.nacionalidad || '—'}</span></td>
                       <td>{eq.miembros}</td>
+                      <td>{eq.tiempollegada || eq.tiempoLlegada || '—'}</td>
+                      <td>{eq.contacto || '—'}</td>
                       <td>{eq.ubicacion}</td>
                       <td>
-                        <span className={`estado-badge ${eq.estado.toLowerCase().replace(' ', '-')}`}>
+                        <span className={`estado-badge ${(eq.estado || '').toLowerCase().replace(' ', '-')}`}>
                           {eq.estado}
                         </span>
                       </td>
                       <td>
-                        <button className="acciones-btn" onClick={() => toggleEstado(eq)} title="Cambiar estado">↻</button>
-                        <button className="acciones-btn" onClick={() => eliminarEquipo(eq.id)} title="Eliminar">✕</button>
+                        <div className="acciones-grupo">
+                          <button className="acciones-btn" onClick={() => toggleEstado(eq)} title="Cambiar estado">↻</button>
+                          <button className="acciones-btn retirar" onClick={() => retirarEquipo(eq.id)} title="Retirar equipo">🚫</button>
+                          <button className="acciones-btn eliminar" onClick={() => eliminarEquipo(eq.id)} title="Eliminar definitivamente">✕</button>
+                        </div>
                       </td>
                     </tr>
                   ))}

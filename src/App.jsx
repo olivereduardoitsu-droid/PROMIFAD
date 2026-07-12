@@ -11,6 +11,9 @@ import RescatadosPage from './pages/RescatadosPage/RescatadosPage';
 import DesaparecidosPage from './pages/DesaparecidosPage/DesaparecidosPage';
 import ContactoEmergencia from './components/ContactoEmergencia/ContactoEmergencia';
 import ZonasAfectadas from './components/ZonasAfectadas/ZonasAfectadas';
+import SolicitudesRescate from './components/SolicitudesRescate/SolicitudesRescate';
+import DonorPortal from './components/DonorPortal/DonorPortal';
+import MCDTMAdmin from './components/MCDTMAdmin/MCDTMAdmin';
 import './App.css';
 
 const API_BASE_URL = 'http://localhost:5000/api';
@@ -109,15 +112,18 @@ function App() {
     switch (tabActiva) {
       case 'inicio':
         return (
-          <main className="inicio-grid">
-            <div className="inicio-col">
-              <FaseEmergencia personas={personas} setPersonas={setPersonas} addLog={addLog} onRefresh={cargarDatos} />
-              <FaseRecuperacion personas={personas} setPersonas={setPersonas} proyecto={proyecto} setProyecto={setProyecto} addLog={addLog} onRefresh={cargarDatos} />
-            </div>
-            <div className="inicio-col">
-              <Dashboard personas={personas} proyecto={proyecto} log={log} />
-            </div>
-          </main>
+          <>
+            <main className="inicio-grid">
+              <div className="inicio-col">
+                <FaseEmergencia personas={personas} setPersonas={setPersonas} addLog={addLog} onRefresh={cargarDatos} />
+                <FaseRecuperacion personas={personas} setPersonas={setPersonas} proyecto={proyecto} setProyecto={setProyecto} addLog={addLog} onRefresh={cargarDatos} />
+              </div>
+              <div className="inicio-col">
+                <Dashboard personas={personas} proyecto={proyecto} log={log} />
+              </div>
+            </main>
+            <SolicitudesRescate addLog={addLog} />
+          </>
         );
       case 'donantes':
         return <DonantesPage personas={personas} setPersonas={setPersonas} onRefresh={cargarDatos} />;
@@ -157,16 +163,22 @@ function App() {
   return (
     <div className="app-container" data-theme={theme}>
       {loggedIn ? (
-        <>
-          <NavBar tabActiva={tabActiva} setTabActiva={setTabActiva} onLogout={handleLogout} />
-          <div className="app-content">
-            <header className="app-header">
-              <h1>Sistema de Resiliencia y Financiación Humanitaria</h1>
-              <div className="header-line" />
-            </header>
-            {renderTab()}
-          </div>
-        </>
+        user?.role === 'donante' ? (
+          <DonorPortal user={user} onLogout={handleLogout} />
+        ) : user?.role === 'mcdtm' ? (
+          <MCDTMAdmin user={user} onLogout={handleLogout} />
+        ) : (
+          <>
+            <NavBar tabActiva={tabActiva} setTabActiva={setTabActiva} onLogout={handleLogout} />
+            <div className="app-content">
+              <header className="app-header">
+                <h1>Sistema de Resiliencia y Financiación Humanitaria</h1>
+                <div className="header-line" />
+              </header>
+              {renderTab()}
+            </div>
+          </>
+        )
       ) : (
         <Login onLogin={handleLogin} />
       )}

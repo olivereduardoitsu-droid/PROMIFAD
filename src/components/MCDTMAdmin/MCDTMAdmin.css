@@ -1,0 +1,238 @@
+.mcdtm-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mcdtm-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  background: linear-gradient(90deg, #0a0a0a, #1a0a0a);
+  border-bottom: 2px solid #FF1744;
+  box-shadow: 0 0 20px rgba(255, 23, 68, 0.15);
+}
+
+.mcdtm-brand {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #FF1744;
+  letter-spacing: 3px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mcdtm-logo {
+  font-size: 1.5rem;
+  color: #FF1744;
+  text-shadow: 0 0 10px rgba(255, 23, 68, 0.5);
+}
+
+.mcdtm-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mcdtm-badge {
+  font-size: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  background: rgba(255, 23, 68, 0.15);
+  color: #FF1744;
+  border: 1px solid #FF1744;
+  border-radius: 3px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.mcdtm-saludo {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.mcdtm-logout {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.8rem;
+  border-color: #FF1744;
+  color: #FF1744;
+}
+
+.mcdtm-logout:hover {
+  background: #FF1744;
+  color: #fff;
+}
+
+.mcdtm-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
+.mcdtm-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.mcdtm-header h1 {
+  color: #FF1744;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  font-size: 1.5rem;
+}
+
+.mcdtm-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+.mcdtm-acceso-badge {
+  display: inline-block;
+  margin-top: 0.8rem;
+  font-size: 0.65rem;
+  padding: 0.3rem 1rem;
+  background: rgba(255, 23, 68, 0.08);
+  border: 1px solid rgba(255, 23, 68, 0.3);
+  color: #FF1744;
+  letter-spacing: 2px;
+  font-weight: 600;
+  border-radius: 3px;
+}
+
+.mcdtm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+.mcdtm-card {
+  background: var(--bg-panel);
+  border: var(--border-subtle);
+  padding: 1.5rem;
+  border-radius: 6px;
+}
+
+.mcdtm-card h3 {
+  color: #FF1744;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+
+.mcdtm-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+}
+
+.mcdtm-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.mcdtm-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.mcdtm-stat-num {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #FF1744;
+}
+
+.mcdtm-modulos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.mcdtm-modulos span {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  padding: 0.3rem 0.5rem;
+  background: rgba(255, 23, 68, 0.04);
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.mcdtm-indicadores {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mcdtm-ind {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-light);
+}
+
+.mcdtm-ind strong {
+  color: var(--text-light);
+}
+
+.mcdtm-ind-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mcdtm-ind-dot.verde {
+  background: #00C853;
+  box-shadow: 0 0 6px rgba(0, 200, 83, 0.5);
+}
+
+.mcdtm-ind-dot.amarillo {
+  background: #FFC107;
+  box-shadow: 0 0 6px rgba(255, 193, 7, 0.5);
+}
+
+.mcdtm-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mcdtm-info-grid div {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-light);
+}
+
+.mcdtm-info-grid span {
+  color: var(--text-muted);
+  min-width: 90px;
+}
+
+.mcdtm-codigo {
+  color: #FF1744;
+  letter-spacing: 3px;
+  font-family: monospace;
+}
+
+@media (max-width: 768px) {
+  .mcdtm-grid {
+    grid-template-columns: 1fr;
+  }
+  .mcdtm-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .mcdtm-modulos {
+    grid-template-columns: 1fr;
+  }
+}
